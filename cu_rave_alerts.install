@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * @file
+ * Module file for cu_rave_alerts.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function cu_rave_alerts_install() {
+  $blockEntityManager = \Drupal::service('entity_type.manager')->getStorage('block_content');
+  $block = $blockEntityManager->create([
+    'type' => 'basic',
+  ]);
+  $block->info = 'CU Rave Alerts';
+  $block->uuid = '2bc8be86-ad95-4eee-93da-62edd00095a2';
+  $block->body->value = '';
+  $block->body->format = 'rich_text';
+  $block->save();
+}

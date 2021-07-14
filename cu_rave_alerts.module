@@ -1,0 +1,102 @@
+<?php
+
+/**
+ * @file
+ * Module file for cu_rave_alerts.
+ */
+
+use Drupal\Core\Block\BlockPluginInterface;
+use Drupal\Core\Url;
+use Drupal\Core\Link;
+
+/**
+ * Implements hook_preprocess_block().
+ */
+function cu_rave_alerts_preprocess_block(&$variables) {
+  if ($variables['plugin_id'] == 'block_content:2bc8be86-ad95-4eee-93da-62edd00095a2') {
+    $variables['#cache']['max-age'] = 0;
+  }
+}
+
+/**
+ * Implements hook_cron().
+ */
+function cu_rave_alerts_cron() {
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, 'https://www.getrave.com/rss/cuboulder/channel1');
+  curl_setopt($ch, CURLOPT_POST, 0);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+  curl_setopt($ch, CURLOPT_USERAGENT, "SomeUserAgent");
+  curl_setopt($ch, CURLOPT_COOKIE, 'AspxAutoDetectCookieSupport=1');
+  $output = curl_exec($ch);
+  if ($output === FALSE) {
+    $error = curl_error($ch);
+    \Drupal::logger('cu_rave_alerts')->error($error);
+  } else {
+    // Convert xml string into an object
+    $xml = simplexml_load_string($output);
+    // Convert into json
+    $json = json_encode($xml);
+    // Convert into associative array
+    $rave = json_decode($json, true);
+    $title = $rave['channel']['item']['title'];
+    $pub_date = strtotime($rave['channel']['item']['pubDate']);
+    $rave_settings = \Drupal::configFactory()->getEditable('cu_rave_alerts.settings');
+    $rave_clear_status = $rave_settings->get('rave_clear_status');
+    $rave_pub_date = $rave_settings->get('rave_pub_date');
+    // Don't run unless one of the two cases below or the publish date has
+    // changed, which is checked in the if statement.
+    $run = 0;
+    // Run in the case that the clear has been set, but doesn't reflect local
+    // state.
+    if ((preg_match('/\[CLEAR\]/i', $title, $matches)) && ($rave_clear_status == FALSE)) {
+      $run = 1;
+    }
+    // Run in the case that clear is not set on the title and it is set to
+    // clear locaaly.
+    if ((!preg_match('/\[CLEAR\]/i', $title, $matches)) && ($rave_clear_status == TRUE)) {
+      $run = 1;
+    }
+
+    if (($run) || ($pub_date > $rave_pub_date)) {
+      // Update text in news subscription block.
+      $query = \Drupal::database()->select('block_content_field_data', 'bcb');
+      $query->fields('bcb', ['id']);
+      $query->condition('bcb.info', 'CU Rave Alerts');
+      $results = $query->execute();
+      $results = $results->fetch();
+      $rave_block_id = $results->id;
+      $block = \Drupal::service('entity_type.manager')->getStorage('block_content');
+      $bl = $block->load($rave_block_id);
+      if (preg_match('/\[CLEAR\]/i', $title, $matches)) {
+        $bl->set('body', '');
+        // Clear updates pub date
+        $rave_settings->set('rave_pub_date', $pub_date);
+        // Bring inline with the clear status
+        $rave_settings->set('rave_clear_status', TRUE);
+        $rave_settings->save();
+      } else {
+        $description = $rave['channel']['item']['description'];
+        $rave_link = $rave['channel']['item']['guid'];
+        if (!empty($rave_link)) {
+          $url = Url::fromUri($rave_link);
+        } else {
+          $url = Url::fromUri('https://alerts.colorado.edu/');
+        }
+        $link = Link::fromTextAndUrl(t('Read More'), $url);
+        $link_to_thing = $link->toString();
+        $bl->set('body', "<div class='banner banner--oit-cu-rave-alerts'>[svg name=exclamation width=20 color=f2f2f2][/svg] $description $link_to_thing</div>");
+        // Set new pub date
+        $rave_settings->set('rave_pub_date', $pub_date);
+        // Bring inline with the clear status
+        $rave_settings->set('rave_clear_status', FALSE);
+        $rave_settings->save();
+      }
+      $bl->body->format = 'rich_text';
+      $bl->save();
+    }
+
+  }
+  curl_close($ch);
+}

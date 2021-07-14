@@ -1,0 +1,29 @@
+uuid: 64b01ee5-7389-4e1d-96ff-a74c19b6d749
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:basic:2bc8be86-ad95-4eee-93da-62edd00095a2'
+  module:
+    - block_class
+    - block_content
+  theme:
+    - dingo
+third_party_settings:
+  block_class:
+    classes: cu_rave_alerts
+id: curavealerts
+theme: dingo
+region: header_top
+weight: -20
+provider: null
+plugin: 'block_content:2bc8be86-ad95-4eee-93da-62edd00095a2'
+settings:
+  id: 'block_content:2bc8be86-ad95-4eee-93da-62edd00095a2'
+  label: 'CU Rave Alerts'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility: {  }
