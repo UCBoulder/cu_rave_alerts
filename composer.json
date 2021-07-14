@@ -1,0 +1,9 @@
+{
+  "name": "oit/cu_rave_alerts",
+  "type": "oit-module",
+  "description": "CU rave alerts block",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0-or-later",
+  "homepage": "https://github.com/UCBoulder/cu_rave_alerts",
+  "minimum-stability": "dev"
+}
