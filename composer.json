@@ -1,6 +1,6 @@
 {
   "name": "oit/cu_rave_alerts",
-  "type": "oit-module",
+  "type": "drupal-custom-module",
   "description": "CU rave alerts block",
   "keywords": ["Drupal"],
   "license": "GPL-2.0-or-later",
