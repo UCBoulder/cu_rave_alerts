@@ -1,0 +1,14 @@
+name: (A) PHPCS
+on:
+  push:
+    branches:
+      - '*'
+jobs:
+  deploy:
+    name: Run phpcs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: ./.github/actions/cs
+        env:
+          repo: {{ GITHUB_REPOSITORY }}
