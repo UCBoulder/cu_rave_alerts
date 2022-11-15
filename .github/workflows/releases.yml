@@ -52,4 +52,4 @@ jobs:
           email: "buffalor@colorado.edu"
           gh_token: ${{ secrets.GITHUB_TOKEN }}
           gh_user: ${{ github.actor }}
-          repo: "UCBoulder/oit_dingo"
+          repo: ${{ github.repository }}

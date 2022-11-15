@@ -10,5 +10,3 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: ./.github/actions/cs
-        env:
-          repo: ${{ github.repository }}
