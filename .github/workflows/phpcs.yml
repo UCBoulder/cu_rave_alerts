@@ -11,4 +11,4 @@ jobs:
       - uses: actions/checkout@v1
       - uses: ./.github/actions/cs
         env:
-          repo: ${{ secrets.GITHUB_REPOSITORY }}
+          repo: ${{ github.repository }}
