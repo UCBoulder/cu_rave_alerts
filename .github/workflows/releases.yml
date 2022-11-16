@@ -10,6 +10,4 @@ permissions:
   contents: write
 jobs:
   release:
-    name: Tag code
-    runs-on: ubuntu-latest
     uses: UCBoulder/oitid_reusable_actions/.github/workflows/releases.yml@main
