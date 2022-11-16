@@ -13,9 +13,3 @@ jobs:
     name: Tag code
     runs-on: ubuntu-latest
     uses: UCBoulder/oitid_reusable_actions/.github/workflows/releases.yml@main
-      env:
-        set_version: ${{ github.event.inputs.version }}
-        email: "buffalor@colorado.edu"
-        gh_token: ${{ secrets.GITHUB_TOKEN }}
-        gh_user: ${{ github.actor }}
-        repo: ${{ github.repository }}
