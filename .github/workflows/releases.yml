@@ -12,9 +12,7 @@ jobs:
   release:
     name: Tag code
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - uses: UCBoulder/oitid_reusable_actions/.github/workflows/releases.yml@main
+    uses: UCBoulder/oitid_reusable_actions/.github/workflows/releases.yml@main
         env:
           set_version: ${{ github.event.inputs.version }}
           email: "buffalor@colorado.edu"
