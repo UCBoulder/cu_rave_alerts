@@ -1,7 +1,7 @@
 name: CU rave alerts
 type: module
 description: CU rave alerts block
-core_version_requirement: ^9
+core_version_requirement: ^9 || ^10
 dependencies:
   - drupal:block
   - drupal:node
