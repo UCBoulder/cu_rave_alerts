@@ -9,6 +9,11 @@
  * Implements hook_install().
  */
 function cu_rave_alerts_install() {
+  // Set the initial state.
+  \Drupal::state()->set('cu_rave_alerts.clear_status', 0);
+  \Drupal::state()->set('cu_rave_alerts.pub_date', 0);
+
+  // Create the block.
   $blockEntityManager = \Drupal::service('entity_type.manager')->getStorage('block_content');
   $block = $blockEntityManager->create([
     'type' => 'basic',
@@ -18,4 +23,14 @@ function cu_rave_alerts_install() {
   $block->body->value = '';
   $block->body->format = 'rich_text';
   $block->save();
+  \Drupal::messenger()->addMessage(t('CU Rave Alerts block created, be sure to place it from the block layout page.'));
+}
+
+/**
+ * Implements hook_update().
+ */
+function cu_rave_alerts_update_9000() {
+  \Drupal::state()->set('cu_rave_alerts.clear_status', 0);
+  \Drupal::state()->set('cu_rave_alerts.pub_date', 0);
+  \Drupal::service('config.factory')->getEditable('cu_rave_alerts.settings')->delete();
 }

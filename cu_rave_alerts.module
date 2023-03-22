@@ -42,9 +42,8 @@ function cu_rave_alerts_cron() {
     $rave = json_decode($json, true);
     $title = $rave['channel']['item']['title'];
     $pub_date = strtotime($rave['channel']['item']['pubDate']);
-    $rave_settings = \Drupal::configFactory()->getEditable('cu_rave_alerts.settings');
-    $rave_clear_status = $rave_settings->get('rave_clear_status');
-    $rave_pub_date = $rave_settings->get('rave_pub_date');
+    $rave_clear_status = \Drupal::state()->get('cu_rave_alerts.clear_status');
+    $rave_pub_date = \Drupal::state()->get('cu_rave_alerts.pub_date');
     // Don't run unless one of the two cases below or the publish date has
     // changed, which is checked in the if statement.
     $run = 0;
@@ -54,7 +53,7 @@ function cu_rave_alerts_cron() {
       $run = 1;
     }
     // Run in the case that clear is not set on the title and it is set to
-    // clear locaaly.
+    // clear locally.
     if ((!preg_match('/\[CLEAR\]/i', $title, $matches)) && ($rave_clear_status == TRUE)) {
       $run = 1;
     }
@@ -72,10 +71,9 @@ function cu_rave_alerts_cron() {
       if (preg_match('/\[CLEAR\]/i', $title, $matches)) {
         $bl->set('body', '');
         // Clear updates pub date
-        $rave_settings->set('rave_pub_date', $pub_date);
+        \Drupal::state()->set('cu_rave_alerts.pub_date', $pub_date);
         // Bring inline with the clear status
-        $rave_settings->set('rave_clear_status', TRUE);
-        $rave_settings->save();
+        \Drupal::state()->set('cu_rave_alerts.clear_status', TRUE);
       } else {
         $description = $rave['channel']['item']['description'];
         $rave_link = $rave['channel']['item']['guid'];
@@ -88,10 +86,9 @@ function cu_rave_alerts_cron() {
         $link_to_thing = $link->toString();
         $bl->set('body', "<div class='banner banner--oit-cu-rave-alerts'>[svg name=exclamation width=20 color=f2f2f2][/svg] $description $link_to_thing</div>");
         // Set new pub date
-        $rave_settings->set('rave_pub_date', $pub_date);
+        \Drupal::state()->set('cu_rave_alerts.pub_date', $pub_date);
         // Bring inline with the clear status
-        $rave_settings->set('rave_clear_status', FALSE);
-        $rave_settings->save();
+        \Drupal::state()->set('cu_rave_alerts.clear_status', FALSE);
       }
       $bl->body->format = 'rich_text';
       $bl->save();
