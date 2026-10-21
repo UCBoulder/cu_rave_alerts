@@ -5,7 +5,6 @@
  * Module file for cu_rave_alerts.
  */
 
-use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Url;
 use Drupal\Core\Link;
 
@@ -33,13 +32,14 @@ function cu_rave_alerts_cron() {
   if ($output === FALSE) {
     $error = curl_error($ch);
     \Drupal::logger('cu_rave_alerts')->error($error);
-  } else {
-    // Convert xml string into an object
+  }
+  else {
+    // Convert xml string into an object.
     $xml = simplexml_load_string($output);
-    // Convert into json
+    // Convert into json.
     $json = json_encode($xml);
-    // Convert into associative array
-    $rave = json_decode($json, true);
+    // Convert into associative array.
+    $rave = json_decode($json, TRUE);
     $title = $rave['channel']['item']['title'];
     $pub_date = strtotime($rave['channel']['item']['pubDate']);
     $rave_clear_status = \Drupal::state()->get('cu_rave_alerts.clear_status');
@@ -70,24 +70,26 @@ function cu_rave_alerts_cron() {
       $bl = $block->load($rave_block_id);
       if (preg_match('/\[CLEAR\]/i', $title, $matches)) {
         $bl->set('body', '');
-        // Clear updates pub date
+        // Clear updates pub date.
         \Drupal::state()->set('cu_rave_alerts.pub_date', $pub_date);
-        // Bring inline with the clear status
+        // Bring inline with the clear status.
         \Drupal::state()->set('cu_rave_alerts.clear_status', TRUE);
-      } else {
+      }
+      else {
         $description = $rave['channel']['item']['description'];
         $rave_link = $rave['channel']['item']['guid'];
         if (!empty($rave_link)) {
           $url = Url::fromUri($rave_link);
-        } else {
+        }
+        else {
           $url = Url::fromUri('https://alerts.colorado.edu/');
         }
         $link = Link::fromTextAndUrl(t('Read More'), $url);
         $link_to_thing = $link->toString();
         $bl->set('body', "<div class='banner banner--oit-cu-rave-alerts'>[svg name=exclamation width=20 color=f2f2f2][/svg] $description $link_to_thing</div>");
-        // Set new pub date
+        // Set new pub date.
         \Drupal::state()->set('cu_rave_alerts.pub_date', $pub_date);
-        // Bring inline with the clear status
+        // Bring inline with the clear status.
         \Drupal::state()->set('cu_rave_alerts.clear_status', FALSE);
       }
       $bl->body->format = 'rich_text';
@@ -95,5 +97,4 @@ function cu_rave_alerts_cron() {
     }
 
   }
-  curl_close($ch);
 }
